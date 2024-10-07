@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './presentation/http/filters/http-exceptions.filter';
 
 // Helper
 import { customFactory } from './shared/helpers/index';
@@ -12,8 +14,9 @@ import { Order } from './domain/entities/order.entity';
 import {
   CreateUserCommand,
   UpdateUserCommand,
+  DeleteUserCommand,
   CreateOrderCommand,
-  UpdateOrderCommand 
+  UpdateOrderCommand,
 } from './application/commands/index';
 import {
   GetUserQuery,
@@ -26,6 +29,8 @@ import { TypeOrmUserRepository, TypeOrmOrderRepository } from './infrastructure/
 // Presentation
 import { UserController } from './presentation/http/controllers/user.controller';
 import { OrderController } from './presentation/http/controllers/order.controller';
+import { MyLogger } from './infrastructure/logger/console-logger.service';
+import { NewRelicLoggerService } from './infrastructure/logger/newrelic-logger.service';
 
 @Module({
   imports: [
@@ -44,13 +49,21 @@ import { OrderController } from './presentation/http/controllers/order.controlle
   ],
   controllers: [UserController, OrderController],
   providers: [
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+
     // -- Infrastructure --
     TypeOrmUserRepository,
     TypeOrmOrderRepository,
+    MyLogger,
+    NewRelicLoggerService,
 
     // -- Application -- Commands
     customFactory(CreateUserCommand, TypeOrmUserRepository),
     customFactory(UpdateUserCommand, TypeOrmUserRepository),
+    customFactory(DeleteUserCommand, TypeOrmUserRepository),
     customFactory(CreateOrderCommand, TypeOrmOrderRepository),
     customFactory(UpdateOrderCommand, TypeOrmOrderRepository),
 

@@ -5,3 +5,4 @@ export * from './order/update-order.command';
 // User
 export * from './user/create-user.command';
 export * from './user/update-user.command';
+export * from './user/delete-user.command';
