@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+ database:
+   image: mysql
+   environment:
+     MYSQL_ROOT_PASSWORD: 1234
+     MYSQL_DATABASE: food
+     MYSQL_PASSWORD: 1234
+   ports:
+     - 3336:3306
