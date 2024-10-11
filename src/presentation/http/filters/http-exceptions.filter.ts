@@ -1,14 +1,12 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, Injectable } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { MyLogger } from 'src/infrastructure/logger/console-logger.service';
 import { NewRelicLoggerService } from 'src/infrastructure/logger/newrelic-logger.service';
 
 @Injectable()
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
     constructor(
-        private readonly newRelicLoggerService: NewRelicLoggerService,
-        private readonly logger: MyLogger,
+        private readonly newRelicLogger: NewRelicLoggerService,
     ) {}
 
     catch(exception: HttpException, host: ArgumentsHost) {
@@ -18,11 +16,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
         const status = exception.getStatus();
 
         if (status >= 500) {
-            this.logger.error(exception.message, exception.stack);
-            this.newRelicLoggerService.error(exception.message, exception.stack);
+            this.newRelicLogger.error(exception.message, exception.stack);
         } else if (status >= 400) {
-            this.logger.warn(exception.message, exception.stack);
-            this.newRelicLoggerService.warn(exception.message);
+            this.newRelicLogger.warn(exception.message);
         }
 
         response
